@@ -5,19 +5,19 @@
 //  Concept / key details from the sketch:
 //    * Long wedge / ramp shape - tall at the front, sloping down to a thin back
 //    * 30 cm long, 17 cm wide
-//    * Front face exposes "all the side ports" of the RPi 5
-//    * A cooling fan vent on one side
+//    * Front face exposes the RPi 5 USB / Ethernet port holes
+//    * A round vent hole on one side
 //    * The sloping "roof" is a SEPARATE part that slides into a slot
 //    * The roof carries an embossed Raspberry Pi logo
 //    * Underneath: power button + micro-SD card access
-//    * Body is printed in two (mirrored) halves
+//    * Body is printed in two halves, cut across the middle (15 cm + 15 cm)
 //
 //  Render targets (set with -D part="..."):
 //    "assembled"   - body + roof in place (visualisation)
 //    "body"        - full body (both halves joined)
 //    "roof"        - just the sliding roof, laid flat for printing
-//    "body_left"   - left half of the body (for printing)
-//    "body_right"  - right half of the body (for printing)
+//    "body_front"  - front half of the body, 0..150 mm  (for printing)
+//    "body_back"   - back half of the body, 150..300 mm  (for printing)
 //    "exploded"    - assembled view with the roof lifted out of its slot
 // ============================================================================
 
@@ -43,15 +43,16 @@ lip_t   = 3;      // thickness of the capturing lip above the roof
 slot_d  = 5;      // how far the roof edge engages into the rail
 clr     = 0.4;    // print clearance for the sliding fit
 
-/* [Front ports opening] */
-port_w   = 62;    // width of the port window
-port_h   = 26;    // height of the port window
-port_z   = 9;     // height of the bottom of the port window above the floor
+/* [Raspberry Pi port holes - front face] */
+// Individual openings for the Pi 5 USB / Ethernet I/O bank.
+eth_w    = 16;    // Ethernet (RJ45) opening width
+eth_h    = 15;    // Ethernet opening height
+usb_w    = 15;    // USB double-stack opening width
+usb_h    = 17;    // USB double-stack opening height
+port_clr = 1;     // extra clearance around each opening
 
-/* [Side fan vent] */
-fan_d        = 80;   // outer diameter of the fan grille
-fan_spokes   = 6;    // number of grille spokes
-fan_screw    = 71.5; // fan mounting-hole spacing (80 mm fan)
+/* [Side vent hole] */
+vent_d   = 70;    // plain round vent hole in the side wall
 
 /* [Underside access] */
 pwr_d    = 12;    // power button hole diameter
@@ -63,7 +64,7 @@ pi_w     = 56;    // board width  (along Y)
 pi_l     = 85;    // board length (along X, front->back)
 pi_hx    = 58;    // mount hole spacing along X
 pi_hy    = 49;    // mount hole spacing along Y
-pi_front = 10;    // gap from front inner wall to the board edge
+pi_front = 2;     // gap from front inner wall to the board edge (ports reach the wall)
 standoff_h = 6;   // standoff height
 standoff_d = 6;   // standoff diameter
 
@@ -203,45 +204,31 @@ module raspberry_2d() {
 }
 
 // ----------------------------------------------------------------------------
-//  Front port window ("all the side ports").
+//  Raspberry Pi 5 port holes on the front face: Ethernet + two USB stacks,
+//  positioned to line up with the board's I/O edge.
 // ----------------------------------------------------------------------------
-module front_ports() {
-    translate([-eps, (W - port_w)/2, floor_t + port_z])
-        cube([wall + 2*eps, port_w, port_h]);
+module port_cut(yc, w, h) {
+    bz = floor_t + standoff_h;                  // board top surface height
+    translate([-1, yc - (w + port_clr)/2, bz - 1])
+        cube([wall + 2, w + port_clr, h + port_clr]);
+}
+
+module pi_ports() {
+    port_cut(pi_y0 +  9, eth_w, eth_h);         // Ethernet (RJ45)
+    port_cut(pi_y0 + 27, usb_w, usb_h);         // USB 3.0 double-stack
+    port_cut(pi_y0 + 45, usb_w, usb_h);         // USB 2.0 double-stack
 }
 
 // ----------------------------------------------------------------------------
-//  Side fan vent (circular grille on the y=0 wall).
+//  Plain round vent hole on the y=0 side wall.
 // ----------------------------------------------------------------------------
-module fan_vent() {
-    cz = (front_h*0.55 + back_h)/2 + 18;   // roughly centred on the tall area
-    cx = L*0.32;
+module vent_hole() {
+    cx  = L*0.30;
+    top = front_h + (back_h - front_h)*(cx/L);   // slope height at cx
+    cz  = top/2;                                  // centred in the side wall
     translate([cx, -eps, cz])
-        rotate([-90, 0, 0]) {
-            // open grille: outer ring minus spokes
-            difference() {
-                cylinder(h = wall + 2*eps, d = fan_d);
-                // keep a hub + spokes by removing pie wedges
-                for (i = [0 : fan_spokes-1])
-                    rotate([0, 0, i*360/fan_spokes + 360/fan_spokes/2])
-                        translate([0, 0, -eps])
-                            pie(fan_d/2 - 5, 360/fan_spokes - 7, wall + 4*eps);
-                // hub hole removed too (leave central hub solid -> re-add below)
-            }
-            // central hub
-            cylinder(h = wall + 2*eps, d = 14);
-            // fan screw holes (purely cosmetic mounting bosses pattern)
-            for (sx = [-1, 1], sy = [-1, 1])
-                translate([sx*fan_screw/2, sy*fan_screw/2, -eps])
-                    cylinder(h = wall + 4*eps, d = 4.5);
-        }
-}
-
-// a flat pie slice of given radius / angle / height, centred on origin
-module pie(r, ang, h) {
-    linear_extrude(h)
-        polygon(concat([[0, 0]],
-            [ for (a = [-ang/2 : ang/ ($fn) : ang/2]) [r*cos(a), r*sin(a)] ]));
+        rotate([-90, 0, 0])
+            cylinder(h = wall + 2*eps, d = vent_d);
 }
 
 // ----------------------------------------------------------------------------
@@ -270,16 +257,15 @@ module standoffs() {
 }
 
 // ----------------------------------------------------------------------------
-//  Alignment dowel holes across the centre seam (for the two-half print).
-//  Holes run along Y through the y=W/2 plane.
+//  Alignment dowel holes across the mid-length seam (for the two-half print).
+//  Holes run along X through the x=L/2 plane, inside the two side walls.
 // ----------------------------------------------------------------------------
 module dowel_holes() {
-    pts = [[wall + 14, 16], [L*0.5, 14], [L - wall - 20, back_h*0.5]];
-    for (p = pts)
-        translate([p[0], W/2, p[1]])
-            rotate([-90, 0, 0])
+    for (y = [wall/2, W - wall/2], z = [22, 55])
+        translate([L/2, y, z])
+            rotate([0, 90, 0])
                 translate([0, 0, -12])
-                    cylinder(h = 24, d = 4.2);
+                    cylinder(h = 24, d = 3);
 }
 
 // ----------------------------------------------------------------------------
@@ -291,8 +277,8 @@ module body() {
             difference() {
                 outer_wedge();
                 inner_cavity();
-                front_ports();
-                fan_vent();
+                pi_ports();
+                vent_hole();
                 bottom_holes();
                 dowel_holes();
                 // lower the back wall to open the roof slot
@@ -315,22 +301,22 @@ module roof_in_place() {
 }
 
 // ----------------------------------------------------------------------------
-//  Part selection
+//  Part selection.  The body is cut across the middle into two 150 mm halves.
 // ----------------------------------------------------------------------------
-module half(side) {
-    // side = +1 keep y < W/2 ; side = -1 keep y > W/2
+module half(front) {
+    // front = true  -> keep x < L/2 ; front = false -> keep x > L/2
     intersection() {
         body();
-        if (side > 0) translate([-50, -50, -50]) cube([L+100, 50 + W/2, front_h+100]);
-        else          translate([-50, W/2, -50]) cube([L+100, 50 + W/2, front_h+100]);
+        if (front) translate([-50, -50, -50]) cube([L/2 + 50, W + 100, front_h + 100]);
+        else       translate([L/2, -50, -50]) cube([L/2 + 50, W + 100, front_h + 100]);
     }
 }
 
 if      (part == "assembled") { color("#7f8c8d") body(); roof_in_place(); }
 else if (part == "body")       body();
 else if (part == "roof")       translate([0, 0, lip_t + roof_t]) roof_panel();  // flat, ready to print
-else if (part == "body_left")  half(+1);
-else if (part == "body_right") half(-1);
+else if (part == "body_front") half(true);
+else if (part == "body_back")  half(false);
 else if (part == "exploded")  { color("#7f8c8d") body();
                                 on_slope() translate([0,0,55]) color("#c41e3a") roof_panel(); }
 else                           { color("#7f8c8d") body(); roof_in_place(); }
