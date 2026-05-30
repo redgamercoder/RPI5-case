@@ -1,16 +1,14 @@
 // ============================================================================
-//  Raspberry Pi 5 "Monolith" Wedge Case
+//  Raspberry Pi 5 Box Case
 //  Modelled from a hand-drawn concept sketch.
 //
-//  Concept / key details from the sketch:
-//    * Long wedge / ramp shape - tall at the front, sloping down to a thin back
-//    * 30 cm long, 17 cm wide
-//    * Front face exposes the RPi 5 USB / Ethernet port holes
-//    * A round vent hole on one side
-//    * The sloping "roof" is a SEPARATE part that slides into a slot
+//  Concept / key details:
+//    * Rectangular box - 30 cm long, 17 cm wide, 12 cm tall (flat top)
+//    * Front face exposes the RPi 5 USB / Ethernet port holes (the only openings)
+//    * The flat top "roof" is a SEPARATE part that slides into a slot
 //    * The roof carries an embossed Raspberry Pi logo
-//    * Underneath: power button + micro-SD card access
-//    * Body is printed in two halves, cut across the middle (15 cm + 15 cm)
+//    * Body is two hollow boxes, cut across the middle (15 cm + 15 cm),
+//      sharing one interior (open at the cut)
 //
 //  Render targets (set with -D part="..."):
 //    "assembled"   - body + roof in place (visualisation)
@@ -24,10 +22,13 @@
 part = "assembled";
 
 /* [Overall dimensions] */
-L        = 300;   // length, front -> back  (30 cm)
-W        = 170;   // width                  (17 cm)
-front_h  = 120;   // height of the tall front face
-back_h   = 35;    // height of the thin back edge
+L  = 300;   // length, front -> back  (30 cm)
+W  = 170;   // width                  (17 cm)
+H  = 120;   // height                 (12 cm)
+// The whole case is a rectangular box: the front and back are the same height,
+// so the top is flat.  (Give back_h a smaller value if you ever want a wedge.)
+front_h = H;
+back_h  = H;
 
 /* [Shell] */
 wall     = 4;     // side / front / back wall thickness
@@ -44,20 +45,12 @@ slot_d  = 5;      // how far the roof edge engages into the rail
 clr     = 0.4;    // print clearance for the sliding fit
 
 /* [Raspberry Pi port holes - front face] */
-// Individual openings for the Pi 5 USB / Ethernet I/O bank.
+// The only openings in the case: the Pi 5 USB / Ethernet I/O bank.
 eth_w    = 16;    // Ethernet (RJ45) opening width
 eth_h    = 15;    // Ethernet opening height
 usb_w    = 15;    // USB double-stack opening width
 usb_h    = 17;    // USB double-stack opening height
 port_clr = 1;     // extra clearance around each opening
-
-/* [Side vent hole] */
-vent_d   = 70;    // plain round vent hole in the side wall
-
-/* [Underside access] */
-pwr_d    = 12;    // power button hole diameter
-sd_w     = 16;    // micro-SD slot width
-sd_l     = 4;     // micro-SD slot length
 
 /* [Raspberry Pi board + mounts] */
 pi_w     = 56;    // board width  (along Y)
@@ -87,9 +80,9 @@ pi_x0 = wall + pi_front;
 pi_y0 = (W - pi_w) / 2;
 
 // ----------------------------------------------------------------------------
-//  Helper: work in the frame of the sloping top surface.
-//  Local +x runs down-slope (front -> back), +y is width, z=0 is the surface,
-//  z<0 is into the body.
+//  Helper: work in the frame of the top surface.  +x runs front -> back,
+//  +y is width, z=0 is the top surface, z<0 is into the body.  (With a flat
+//  top, slope_ang = 0, so this is just a lift to the top.)
 // ----------------------------------------------------------------------------
 module on_slope() {
     translate([0, 0, front_h])
@@ -98,9 +91,9 @@ module on_slope() {
 }
 
 // ----------------------------------------------------------------------------
-//  Outer solid wedge: vertical sides + front/back, single sloping top.
+//  Outer solid shell: a rectangular box (vertical sides, flat top).
 // ----------------------------------------------------------------------------
-module outer_wedge() {
+module outer_box() {
     translate([0, W, 0])
         rotate([90, 0, 0])
             linear_extrude(W)
@@ -220,30 +213,6 @@ module pi_ports() {
 }
 
 // ----------------------------------------------------------------------------
-//  Plain round vent hole on the y=0 side wall.
-// ----------------------------------------------------------------------------
-module vent_hole() {
-    cx  = L*0.30;
-    top = front_h + (back_h - front_h)*(cx/L);   // slope height at cx
-    cz  = top/2;                                  // centred in the side wall
-    translate([cx, -eps, cz])
-        rotate([-90, 0, 0])
-            cylinder(h = wall + 2*eps, d = vent_d);
-}
-
-// ----------------------------------------------------------------------------
-//  Under-side access: power button + micro-SD slot.
-// ----------------------------------------------------------------------------
-module bottom_holes() {
-    // power button, near the front under the board edge
-    translate([pi_x0 + 14, W/2 - 22, -eps])
-        cylinder(h = floor_t + 2*eps, d = pwr_d);
-    // micro-SD slot
-    translate([pi_x0 + 6, W/2 + 14, -eps])
-        cube([sd_l, sd_w, floor_t + 2*eps]);
-}
-
-// ----------------------------------------------------------------------------
 //  Pi mounting standoffs (added back as solid posts inside the cavity).
 // ----------------------------------------------------------------------------
 module standoffs() {
@@ -275,11 +244,9 @@ module body() {
     difference() {
         union() {
             difference() {
-                outer_wedge();
+                outer_box();
                 inner_cavity();
                 pi_ports();
-                vent_hole();
-                bottom_holes();
                 dowel_holes();
                 // lower the back wall to open the roof slot
                 translate([L - wall - eps, -1, back_wall_h])

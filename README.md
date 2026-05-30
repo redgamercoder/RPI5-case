@@ -1,25 +1,22 @@
 # RPI5-case
 
-A parametric, 3D-printable **Raspberry Pi 5 "monolith" wedge case**, modelled
-in [OpenSCAD](https://openscad.org/) from a hand-drawn concept sketch.
+A parametric, 3D-printable **Raspberry Pi 5 box case**, modelled in
+[OpenSCAD](https://openscad.org/) from a hand-drawn concept sketch.
 
 ![assembled case](renders/hero.png)
 
 ## The concept
 
-The case is a long wedge / ramp — tall at the front, sloping down to a thin
-back edge — built straight from the sketch's key details:
+The case is a plain rectangular box with a flat sliding-lid top:
 
-| Sketch note | In the model |
+| Detail | In the model |
 |---|---|
-| 30 cm long, 17 cm wide | `L = 300`, `W = 170` |
-| Wedge that slopes down to the back | `front_h = 120` → `back_h = 35` |
-| "All the side ports" on the front | individual Pi 5 USB / Ethernet port holes in the front face |
-| A hole on the side | plain round vent hole in the side wall |
+| 30 cm long, 17 cm wide, 12 cm tall | `L = 300`, `W = 170`, `H = 120` |
+| Rectangular box, flat top | `front_h = back_h = H` |
+| Pi USB / Ethernet port holes on the front | the only openings in the case |
 | Raspberry Pi logo on top | stylised berry-and-leaves logo embossed on the roof |
-| Underneath: power button + micro-SD | holes in the floor under the board |
-| "Print in two halves (15 cm + 15 cm)" | `body_front` + `body_back`, cut across the middle, with dowel holes |
-| "Roof is separate, slides in/out of a slot" | roof rides in a C-channel; the back is open as the slot |
+| Two hollow boxes (15 cm + 15 cm) | `body_front` + `body_back`, cut across the middle, sharing one interior (open at the cut) |
+| Separate roof that slides into a slot | flat roof rides in a C-channel; the back is open as the slot |
 
 ## Files
 
@@ -43,7 +40,7 @@ Each side wall carries an inner **C-channel rail**: a lip captures the roof
 from above and a ledge supports it from below. The roof is a flat panel whose
 two long edges slide along these channels. The back wall is lowered, leaving an
 open **slot** — you slide the roof in from the back until it stops against the
-tall front wall, and slide it back out to open the case. A finger-pull notch on
+front wall, and slide it back out to open the case. A finger-pull notch on
 the roof's back edge makes it easy to grab.
 
 ```
@@ -58,11 +55,11 @@ the roof's back edge makes it easy to grab.
 
 ## Printing notes
 
-* **Size / bed.** The case is intentionally large (30 × 17 cm). It is cut
-  across the middle into two 150 mm halves so each footprint is 150 × 170 mm
-  (front half up to 120 mm tall, back half up to ~78 mm); the roof is
-  307 × 153 mm. If your bed is smaller, scale the whole model down in your
-  slicer, or lower `L` in the source — everything is parametric.
+* **Size / bed.** The case is intentionally large (30 × 17 × 12 cm). It is cut
+  across the middle into two 150 mm halves, so each half is a 150 × 170 ×
+  120 mm box; the roof is 295 × 153 mm. If your bed is smaller, scale the whole
+  model down in your slicer, or lower `L`/`H` in the source — everything is
+  parametric.
 * **Orientation.** Print each body half sitting on its flat bottom, and the
   roof flat (logo up). No supports are needed for the roof; the rail lips print
   cleanly in that orientation.
@@ -78,8 +75,8 @@ the roof's back edge makes it easy to grab.
 ## Editing / regenerating
 
 Open `rpi5_case.scad` in OpenSCAD and tweak the variables at the top
-(dimensions, wall thickness, vent diameter, port-hole sizes, roof-joint
-clearances, Pi mount spacing, …). To regenerate the STLs from the command line:
+(dimensions, wall thickness, port-hole sizes, roof-joint clearances,
+Pi mount spacing, …). To regenerate the STLs from the command line:
 
 ```sh
 make            # renders every part into stl/
