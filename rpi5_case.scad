@@ -4,9 +4,8 @@
 //
 //  Concept / key details:
 //    * Rectangular box - 30 cm long, 17 cm wide, 12 cm tall (flat top)
-//    * Front face exposes the RPi 5 USB / Ethernet port holes (the only openings)
-//    * The flat top "roof" is a SEPARATE part that slides into a slot
-//    * The roof carries an embossed Raspberry Pi logo
+//    * Front face exposes the RPi 5 port holes (the only openings)
+//    * The flat top "roof" is a SEPARATE part that slides into a slot (plain)
 //    * Body is two hollow boxes, cut across the middle (15 cm + 15 cm),
 //      sharing one interior (open at the cut)
 //
@@ -50,6 +49,7 @@ eth_w    = 16;    // Ethernet (RJ45) opening width
 eth_h    = 15;    // Ethernet opening height
 usb_w    = 15;    // USB double-stack opening width
 usb_h    = 17;    // USB double-stack opening height
+usb2_w   = 30;    // width of the extra "2 USB ports side by side" hole
 port_clr = 1;     // extra clearance around each opening
 
 /* [Raspberry Pi board + mounts] */
@@ -150,55 +150,11 @@ module roof_panel() {
         translate([rx1 - 14, W/2 - 13, roof_bot_z - eps])
             cube([20, 26, roof_t + 2*eps]);
     }
-    // embossed Raspberry Pi logo, raised from the top surface.
-    // rotate(90) so the leaves point up-slope (toward the tall front).
-    translate([slope_len*0.54, W/2, roof_top_z])
-        rotate([0, 0, 90])
-            raspberry_logo(logo_h = 92, emboss = 4);
 }
 
 // ----------------------------------------------------------------------------
-//  Stylised Raspberry Pi logo: a cluster of distinct berries + two leaves,
-//  extruded upward by `emboss`. `logo_h` is the overall height in mm.
-//  Drawn with +Y pointing toward the leaves (the "up" of the logo).
-// ----------------------------------------------------------------------------
-module raspberry_logo(logo_h = 80, emboss = 4) {
-    s = logo_h / 7.75;             // unit-height of raspberry_2d() is ~7.75
-    linear_extrude(height = emboss)
-        scale([s, s])
-            raspberry_2d();
-}
-
-// a single broad pointed leaf, tip pointing +Y, centred on origin
-module leaf2d() {
-    intersection() {
-        translate([-0.7, 0]) scale([1, 1.35]) circle(1.5);
-        translate([ 0.7, 0]) scale([1, 1.35]) circle(1.5);
-    }
-}
-
-module raspberry_2d() {
-    br = 0.95;                      // berry radius (gaps keep them distinct)
-    // berry body: hex-packed diamond cluster
-    berries = [ [0, 0],
-                [-1.1, 1.0], [1.1, 1.0],
-                [-2.2, 2.0], [0, 2.0], [2.2, 2.0],
-                [-1.1, 3.0], [1.1, 3.0],
-                [0, 4.0] ];
-    for (p = berries)
-        translate([p[0], p[1]]) circle(br);
-    // two pointed leaves splayed in a V above the cluster
-    for (m = [-1, 1])
-        scale([m, 1])
-            translate([0.9, 4.6])
-                rotate(30)
-                    scale(1.15)
-                        leaf2d();
-}
-
-// ----------------------------------------------------------------------------
-//  Raspberry Pi 5 port holes on the front face: Ethernet + two USB stacks,
-//  positioned to line up with the board's I/O edge.
+//  Front-face port holes: Ethernet + two USB stacks, plus an extra wide
+//  (two-USB) hole to the right of the row.
 // ----------------------------------------------------------------------------
 module port_cut(yc, w, h) {
     bz = floor_t + standoff_h;                  // board top surface height
@@ -207,9 +163,13 @@ module port_cut(yc, w, h) {
 }
 
 module pi_ports() {
-    port_cut(pi_y0 +  9, eth_w, eth_h);         // Ethernet (RJ45)
-    port_cut(pi_y0 + 27, usb_w, usb_h);         // USB 3.0 double-stack
-    port_cut(pi_y0 + 45, usb_w, usb_h);         // USB 2.0 double-stack
+    // viewed from the front (outside), the row reads left -> right:
+    //   Ethernet, USB, USB, wide (two-USB) hole on the right.
+    port_cut(pi_y0 + 47, eth_w, eth_h);         // Ethernet (RJ45)
+    port_cut(pi_y0 + 29, usb_w, usb_h);         // USB 3.0 double-stack
+    port_cut(pi_y0 + 11, usb_w, usb_h);         // USB 2.0 double-stack
+    // extra wide hole (two USB ports side by side) to the right of the row
+    port_cut(pi_y0 + 11 - usb_w/2 - usb2_w/2 - 3, usb2_w, usb_h);
 }
 
 // ----------------------------------------------------------------------------

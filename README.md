@@ -13,8 +13,8 @@ The case is a plain rectangular box with a flat sliding-lid top:
 |---|---|
 | 30 cm long, 17 cm wide, 12 cm tall | `L = 300`, `W = 170`, `H = 120` |
 | Rectangular box, flat top | `front_h = back_h = H` |
-| Pi USB / Ethernet port holes on the front | the only openings in the case |
-| Raspberry Pi logo on top | stylised berry-and-leaves logo embossed on the roof |
+| Pi port holes on the front | Ethernet + two USB stacks + one wide (two-USB) hole, the only openings |
+| Plain flat roof | no logo |
 | Two hollow boxes (15 cm + 15 cm) | `body_front` + `body_back`, cut across the middle, sharing one interior (open at the cut) |
 | Separate roof that slides into a slot | flat roof rides in a C-channel; the back is open as the slot |
 
@@ -61,16 +61,15 @@ the roof's back edge makes it easy to grab.
   model down in your slicer, or lower `L`/`H` in the source — everything is
   parametric.
 * **Orientation.** Print each body half sitting on its flat bottom, and the
-  roof flat (logo up). No supports are needed for the roof; the rail lips print
-  cleanly in that orientation.
+  roof flat. No supports are needed for the roof; the rail lips print cleanly
+  in that orientation.
 * **Assembly.** Join the front and back halves along the mid-length seam
   (4 × Ø3 mm dowel holes in the side walls are provided for alignment — glue or
   pin them). Mount the Pi on the four standoffs (`58 × 49 mm`, M2.5) so its
   USB/Ethernet edge lines up with the front port holes, then slide the roof in
   from the back.
-* **Colour.** Print the roof in red and the logo will read as a raised
-  Raspberry Pi mark; for the official two-tone look, do a filament change at
-  the top of the roof layer so the berries/leaves come out in colour.
+* **Colour.** Print the roof in a contrasting colour (e.g. red) if you want
+  the sliding lid to stand out from the body.
 
 ## Editing / regenerating
 
