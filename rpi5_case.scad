@@ -12,9 +12,11 @@
 //  Render targets (set with -D part="..."):
 //    "assembled"   - body + roof in place (visualisation)
 //    "body"        - full body (both halves joined)
-//    "roof"        - just the sliding roof, laid flat for printing
-//    "body_front"  - front half of the body, 0..150 mm  (for printing)
-//    "body_back"   - back half of the body, 150..300 mm  (for printing)
+//    "roof"        - the full sliding roof, laid flat (reference)
+//    "roof_front"  - front half of the roof, laid flat   (for printing)
+//    "roof_back"   - back half of the roof, laid flat     (for printing)
+//    "body_front"  - front half of the body, 0..150 mm    (for printing)
+//    "body_back"   - back half of the body, 150..300 mm   (for printing)
 //    "exploded"    - assembled view with the roof lifted out of its slot
 // ============================================================================
 
@@ -261,9 +263,21 @@ module half(front) {
     }
 }
 
+// the sliding roof divided in two for printing (cut at L/2, like the body).
+// The two pieces slide into the channel end-to-end.  front = true keeps x < L/2.
+module roof_half(front) {
+    intersection() {
+        roof_panel();
+        if (front) translate([-50, -100, -100]) cube([L/2 + 50, 400, 200]);
+        else       translate([L/2, -100, -100]) cube([L,       400, 200]);
+    }
+}
+
 if      (part == "assembled") { color("#7f8c8d") body(); roof_in_place(); }
 else if (part == "body")       body();
-else if (part == "roof")       translate([0, 0, lip_t + roof_t]) roof_panel();  // flat, ready to print
+else if (part == "roof")       translate([0, 0, lip_t + roof_t]) roof_panel();      // full roof, flat
+else if (part == "roof_front") translate([0, 0, lip_t + roof_t]) roof_half(true);   // front roof piece, flat
+else if (part == "roof_back")  translate([0, 0, lip_t + roof_t]) roof_half(false);  // back roof piece, flat
 else if (part == "body_front") half(true);
 else if (part == "body_back")  half(false);
 else if (part == "exploded")  { color("#7f8c8d") body();

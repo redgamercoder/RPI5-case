@@ -8,7 +8,7 @@
 
 SCAD    := rpi5_case.scad
 OPENSCAD?= openscad
-PARTS   := assembled body body_front body_back roof
+PARTS   := assembled body body_front body_back roof roof_front roof_back
 STLS    := $(addprefix stl/rpi5_case_,$(addsuffix .stl,$(PARTS)))
 
 all: $(STLS)

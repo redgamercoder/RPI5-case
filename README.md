@@ -25,24 +25,31 @@ The case is a plain rectangular box with a flat sliding-lid top:
 rpi5_case.scad              parametric source (single file, edit this)
 stl/
   rpi5_case_assembled.stl   whole case, roof in place (visualisation)
-  rpi5_case_body.stl        the body as one piece
-  rpi5_case_body_front.stl  front half, 0..150 mm   (print this)
-  rpi5_case_body_back.stl   back half, 150..300 mm  (print this)
-  rpi5_case_roof.stl        the sliding roof, laid flat (print this)
+  rpi5_case_body.stl        the body as one piece (reference)
+  rpi5_case_roof.stl        the full sliding roof (reference)
+  rpi5_case_body_front.stl  body front half, 0..150 mm    (print this)
+  rpi5_case_body_back.stl   body back half, 150..300 mm   (print this)
+  rpi5_case_roof_front.stl  roof front piece, ~146 mm     (print this)
+  rpi5_case_roof_back.stl   roof back piece, ~150 mm      (print this)
 renders/                    reference images
 ```
 
-The three parts you print are **`body_front`**, **`body_back`** and
-**`roof`**. All STL parts are watertight, valid 2-manifolds.
+The four parts you print are **`body_front`**, **`body_back`**,
+**`roof_front`** and **`roof_back`**. All STL parts are watertight, valid
+2-manifolds.
 
 ## How the roof slot works
 
 Each side wall carries an inner **C-channel rail**: a lip captures the roof
-from above and a ledge supports it from below. The roof is a flat panel whose
-two long edges slide along these channels. The back wall is lowered, leaving an
-open **slot** — you slide the roof in from the back until it stops against the
-front wall, and slide it back out to open the case. A finger-pull notch on
-the roof's back edge makes it easy to grab.
+from above and a ledge supports it from below. The roof's two long edges slide
+along these channels. The back wall is lowered, leaving an open **slot** to
+slide the roof in/out.
+
+The roof is **two pieces** (cut at the middle, like the body) so it fits the
+print bed. They slide in end-to-end through the back slot: push the **front
+piece** in first until it stops against the front wall, then the **back
+piece** behind it. To open, slide the back piece out (a finger-pull notch on
+its back edge makes it easy to grab), then the front piece.
 
 ```
         ___ lip                  cross-section of one side rail
@@ -56,14 +63,14 @@ the roof's back edge makes it easy to grab.
 
 ## Printing notes
 
-* **Size / bed.** The case is intentionally large (30 × 17 × 12 cm). It is cut
-  across the middle into two 150 mm halves, so each half is a 150 × 170 ×
-  120 mm box; the roof is 295 × 153 mm. If your bed is smaller, scale the whole
-  model down in your slicer, or lower `L`/`H` in the source — everything is
-  parametric.
-* **Orientation.** Print each body half sitting on its flat bottom, and the
-  roof flat. No supports are needed for the roof; the rail lips print cleanly
-  in that orientation.
+* **Size / bed.** The case is intentionally large (30 × 17 × 12 cm). The body
+  is cut across the middle into two 150 × 170 × 120 mm halves, and the roof is
+  cut into two ~150 × 153 mm pieces, so every part fits on a ~170 mm bed. If
+  your bed is smaller still, scale the whole model down in your slicer, or
+  lower `L`/`H` in the source — everything is parametric.
+* **Orientation.** Print each body half sitting on its flat bottom, and the two
+  roof pieces flat. No supports are needed for the roof; the rail lips print
+  cleanly in that orientation.
 * **Assembly.** Join the front and back halves along the mid-length seam
   (4 × Ø3 mm dowel holes in the side walls are provided for alignment — glue or
   pin them). Mount the Pi on the four standoffs (`58 × 49 mm`, M2.5) so its
