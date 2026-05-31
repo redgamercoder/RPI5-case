@@ -54,12 +54,12 @@ usb_h    = 17;    // USB double-stack opening height
 usb2_w   = 30;    // width of the extra "2 USB ports side by side" hole
 port_clr = 1;     // extra clearance around each opening
 
-/* [Cooling fan - 30 mm, YDL3007C05F (30x30x7)] */
+/* [Cooling fan - 30 mm, YDL3007C05F (30x30x7)] - on the front face */
 fan_bore     = 27;   // air opening diameter
 fan_screw_sp = 24;   // screw-hole spacing (30 mm fan = 24 mm, square pattern)
 fan_screw_d  = 2.8;  // screw-hole diameter (M3 self-tapping into the plastic)
-fan_cx       = 48;   // fan centre length-wise: centred over the Pi board
-fan_cz       = 22;   // fan centre height: low, level with the Pi board / SoC
+fan_cy       = 77;   // fan centre across the width: above the two USB ports
+fan_cz       = 46;   // fan centre height: above the USB / Ethernet port row
 
 /* [Raspberry Pi board + mounts] */
 pi_w     = 56;    // board width  (along Y)
@@ -182,15 +182,15 @@ module pi_ports() {
 }
 
 // ----------------------------------------------------------------------------
-//  30 mm fan mount on the y=0 side wall (front half): a round air hole plus
-//  four corner screw holes at 24 mm spacing, for a YDL3007C05F.
+//  30 mm fan mount on the front face, above the USB ports: a round air hole
+//  plus four corner screw holes at 24 mm spacing, for a YDL3007C05F.
 // ----------------------------------------------------------------------------
 module fan_mount() {
-    translate([fan_cx, -eps, fan_cz])
-        rotate([-90, 0, 0]) {
+    translate([-eps, fan_cy, fan_cz])
+        rotate([0, 90, 0]) {
             cylinder(h = wall + 2*eps, d = fan_bore);          // air opening
-            for (sx = [-1, 1], sy = [-1, 1])                   // 4 screw holes
-                translate([sx*fan_screw_sp/2, sy*fan_screw_sp/2, 0])
+            for (a = [-1, 1], b = [-1, 1])                     // 4 screw holes
+                translate([a*fan_screw_sp/2, b*fan_screw_sp/2, 0])
                     cylinder(h = wall + 2*eps, d = fan_screw_d);
         }
 }
