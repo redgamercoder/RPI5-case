@@ -44,13 +44,20 @@ slot_d  = 5;      // how far the roof edge engages into the rail
 clr     = 0.4;    // print clearance for the sliding fit
 
 /* [Raspberry Pi port holes - front face] */
-// The only openings in the case: the Pi 5 USB / Ethernet I/O bank.
+// The only wall openings besides the side fan: the Pi 5 USB / Ethernet bank.
 eth_w    = 16;    // Ethernet (RJ45) opening width
 eth_h    = 15;    // Ethernet opening height
 usb_w    = 15;    // USB double-stack opening width
 usb_h    = 17;    // USB double-stack opening height
 usb2_w   = 30;    // width of the extra "2 USB ports side by side" hole
 port_clr = 1;     // extra clearance around each opening
+
+/* [Cooling fan - 30 mm, YDL3007C05F (30x30x7)] */
+fan_bore     = 27;   // air opening diameter
+fan_screw_sp = 24;   // screw-hole spacing (30 mm fan = 24 mm, square pattern)
+fan_screw_d  = 2.8;  // screw-hole diameter (M3 self-tapping into the plastic)
+fan_cx       = 75;   // fan centre along the length (kept in the front half)
+fan_cz       = 60;   // fan centre height up the side wall
 
 /* [Raspberry Pi board + mounts] */
 pi_w     = 56;    // board width  (along Y)
@@ -173,6 +180,20 @@ module pi_ports() {
 }
 
 // ----------------------------------------------------------------------------
+//  30 mm fan mount on the y=0 side wall (front half): a round air hole plus
+//  four corner screw holes at 24 mm spacing, for a YDL3007C05F.
+// ----------------------------------------------------------------------------
+module fan_mount() {
+    translate([fan_cx, -eps, fan_cz])
+        rotate([-90, 0, 0]) {
+            cylinder(h = wall + 2*eps, d = fan_bore);          // air opening
+            for (sx = [-1, 1], sy = [-1, 1])                   // 4 screw holes
+                translate([sx*fan_screw_sp/2, sy*fan_screw_sp/2, 0])
+                    cylinder(h = wall + 2*eps, d = fan_screw_d);
+        }
+}
+
+// ----------------------------------------------------------------------------
 //  Pi mounting standoffs (added back as solid posts inside the cavity).
 // ----------------------------------------------------------------------------
 module standoffs() {
@@ -207,6 +228,7 @@ module body() {
                 outer_box();
                 inner_cavity();
                 pi_ports();
+                fan_mount();
                 dowel_holes();
                 // lower the back wall to open the roof slot
                 translate([L - wall - eps, -1, back_wall_h])

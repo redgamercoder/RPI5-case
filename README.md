@@ -13,7 +13,8 @@ The case is a plain rectangular box with a flat sliding-lid top:
 |---|---|
 | 30 cm long, 17 cm wide, 12 cm tall | `L = 300`, `W = 170`, `H = 120` |
 | Rectangular box, flat top | `front_h = back_h = H` |
-| Pi port holes on the front | Ethernet + two USB stacks + one wide (two-USB) hole, the only openings |
+| Pi port holes on the front | Ethernet + two USB stacks + one wide (two-USB) hole |
+| 30 mm fan mount on the side | air hole + four screw holes (24 mm spacing) for a YDL3007C05F |
 | Plain flat roof | no logo |
 | Two hollow boxes (15 cm + 15 cm) | `body_front` + `body_back`, cut across the middle, sharing one interior (open at the cut) |
 | Separate roof that slides into a slot | flat roof rides in a C-channel; the back is open as the slot |
@@ -74,8 +75,8 @@ the roof's back edge makes it easy to grab.
 ## Editing / regenerating
 
 Open `rpi5_case.scad` in OpenSCAD and tweak the variables at the top
-(dimensions, wall thickness, port-hole sizes, roof-joint clearances,
-Pi mount spacing, …). To regenerate the STLs from the command line:
+(dimensions, wall thickness, port-hole sizes, fan size/position, roof-joint
+clearances, Pi mount spacing, …). To regenerate the STLs from the command line:
 
 ```sh
 make            # renders every part into stl/
