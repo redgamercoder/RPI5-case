@@ -58,8 +58,8 @@ port_clr = 1;     // extra clearance around each opening
 fan_bore     = 27;   // air opening diameter
 fan_screw_sp = 24;   // screw-hole spacing (30 mm fan = 24 mm, square pattern)
 fan_screw_d  = 2.8;  // screw-hole diameter (M3 self-tapping into the plastic)
-fan_cx       = 75;   // fan centre along the length (kept in the front half)
-fan_cz       = 60;   // fan centre height up the side wall
+fan_cx       = 48;   // fan centre length-wise: centred over the Pi board
+fan_cz       = 22;   // fan centre height: low, level with the Pi board / SoC
 
 /* [Raspberry Pi board + mounts] */
 pi_w     = 56;    // board width  (along Y)
